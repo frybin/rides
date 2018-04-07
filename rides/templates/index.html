@@ -6,7 +6,7 @@
     {% for event in events %}
         <p class="lead">
             <div class="card mb-3">
-                <h3 class="card-header"></h3>
+                <h3 class="card-header">{{event.name}}</h3>
                 <div class="card-body">
                     <h6 class="card-text"> Start: {{event.start_time}}</h6>
                     <h6 class="card-text"> End: {{event.end_time}}</h6>
@@ -17,13 +17,23 @@
                                 <h4 class="mb-1">
                                     {{car.name}} ({{car.username}})
                                     &nbsp;&nbsp;
-                                    {% if car.current_capacity < car.max_capacity %}
-                                        <button class="btn btn-secondary btn-sm" id="join::{{car.id}}" type="button">Join Ride</button>
+                                    <!--TODO: If you are not in ANY car in ALL cars in the EVENT, then you can join.-->
+                                    {% if car.riders == [] %}
+                                        <a class="btn btn-primary btn-sm" href="/join/{{car.id}}/{{auth_dict['uid']}}" id="join2::{{car.id}}" type="button">Join Ride</a>
+                                    {% endif %}
+                                    {% for person in car.riders %}
+                                        {% if person.username == auth_dict["uid"] %}
+                                            <a class="btn btn-danger btn-sm" href='/delete/rider/{{car.id}}/{{auth_dict["uid"]}}' id="delete::rider::{{car.id}}" type="button">Leave Ride</a>
+                                        {% else %}
+                                            {% if car.current_capacity < car.max_capacity %}
+                                                <a class="btn btn-primary btn-sm" href="/join/{{car.id}}/{{auth_dict['uid']}}" id="join::{{car.id}}" type="button">Join Ride</a>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if car.username == auth_dict["uid"] %}
+                                        <a class="btn btn-danger btn-sm" href="/delete/car/{{car.id}}" id="delete::car::{{car.id}}" type="button">Delete Ride</a>
                                     {% endif %}
 
-                                    {% if car.username == auth_dict["uid"] %}
-                                        <button class="btn btn-danger btn-sm" id="delete::car::{{car.id}}" type="button">Delete Ride</button>
-                                    {% endif %}
                                 </h4>
                             </div>
                             <table class="table table-hover" style="table-layout: fixed;">
@@ -51,12 +61,17 @@
                                 </tbody>
                             </table>
                         {% endfor %}
+                        <div class="d-flex w-100 justify-content-between">
+                            <h4 class="mb-1">
+                                    <a class="btn btn-success btn-sm" href="/carform/{{event.id}}" id="ride" type="button">Create Ride</a>
+                            </h4>
+                        </div>
                     </ul>
                     <div class="card-footer text-muted">
                         Hosted By: {{event.creator}}
                         &nbsp;&nbsp;
                         {% if event.creator == auth_dict["uid"] %}
-                            <button class="btn btn-danger btn-sm" id="delete::ride::{{event.id}}" type="button">Delete Event</button>
+                            <a class="btn btn-danger btn-sm" href="/delete/ride/{{event.id}}" id="delete::ride::{{event.id}}" type="button">Delete Event</a>
                         {% endif %}
                     </div>
                 </div>
